@@ -15,11 +15,11 @@ st.markdown("متابعة حية لأداء الحسابات والصفقات ا
 
 # --- تعريف بيانات الحسابات ومفاتيح الربط ---
 ACCOUNTS = {
-    "الحساب الأول (أسهم $1000)": {
+    "الحساب الأول (bot1 - $1000)": {
         "API_KEY": "PKOEYQXJQFVILWXK6C4V5LXSXW",
         "SECRET_KEY": "A6zB4DC1idneqFUke5rEPp2hEAHYCDQCj8hjNmkS2zGf",
         "BASE_URL": "https://paper-api.alpaca.markets",
-        "LOG_FILE": "trades_history_account1.csv"
+        "LOG_FILE": "trades_history_bot.csv"
     },
     "الحساب الثاني (bot2 - $2000)": {
         "API_KEY": "PKGW26NSZJDLAMW2M7VSHJYMSL",
@@ -31,7 +31,7 @@ ACCOUNTS = {
         "API_KEY": "PKF5ARLBNCOULM3IMMSUZE4CIG",
         "SECRET_KEY": "CYdhvBVFGh6gKh3DAWJM7X8KgujxD7PjptCEa43MPc7k",
         "BASE_URL": "https://paper-api.alpaca.markets",
-        "LOG_FILE": "trades_history_bot_account2.csv"
+        "LOG_FILE": "trades_history_account2.csv"
     }
 }
 
