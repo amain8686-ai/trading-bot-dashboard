@@ -21,17 +21,17 @@ ACCOUNTS = {
         "BASE_URL": "https://paper-api.alpaca.markets",
         "LOG_FILE": "trades_history_account1.csv"
     },
-    "الحساب الثاني (نسخة A - $2000)": {
-        "API_KEY": "PKF5ARLBNCOULM3IMMSUZE4CIG",
-        "SECRET_KEY": "CYdhvBVFGh6gKh3DAWJM7X8KgujxD7PjptCEa43MPc7k",
-        "BASE_URL": "https://paper-api.alpaca.markets",
-        "LOG_FILE": "trades_history_account2.csv"
-    },
-    "الحساب الثاني (نسخة B - $2000)": {
+    "الحساب الثاني (bot2 - $2000)": {
         "API_KEY": "PKGW26NSZJDLAMW2M7VSHJYMSL",
         "SECRET_KEY": "DpyM3KjPxBr4NumicNKVs7YczJuwZiudDMAxP84NCsTP",
         "BASE_URL": "https://paper-api.alpaca.markets",
         "LOG_FILE": "trades_history_bot2.csv"
+    },
+    " 0.50 - 100 الحساب (bot_account2 - $2000)": {
+        "API_KEY": "PKF5ARLBNCOULM3IMMSUZE4CIG",
+        "SECRET_KEY": "CYdhvBVFGh6gKh3DAWJM7X8KgujxD7PjptCEa43MPc7k",
+        "BASE_URL": "https://paper-api.alpaca.markets",
+        "LOG_FILE": "trades_history_bot_account2.csv"
     }
 }
 
