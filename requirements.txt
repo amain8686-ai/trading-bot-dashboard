@@ -1,6 +1,5 @@
 streamlit
 pandas
-alpaca-trade-api
 requests
-pandas_ta
 yfinance
+alpaca-trade-api
