@@ -12,23 +12,20 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- إعادة تصميم الألوان والخلفية والرموز بالكامل (Cyber Gold Theme) ---
+# --- التنسيق البصري (Cyber Gold Theme) ---
 st.markdown("""
     <style>
-    /* خلفية التطبيق - أسود فحم فاخر */
     .stApp {
         background-color: #08090c;
         color: #d1d5db;
     }
     
-    /* رأس الصفحة والتطبيقات */
     h1 {
         color: #f3f4f6 !important;
         font-weight: 800 !important;
         letter-spacing: -0.5px;
     }
     
-    /* تصميم التبويبات باللون الذهبي الداكن والأزرق الرمادي */
     .stTabs [data-baseweb="tab-list"] {
         gap: 6px;
         justify-content: center;
@@ -55,7 +52,6 @@ st.markdown("""
         box-shadow: 0px 2px 12px rgba(217, 119, 6, 0.35);
     }
     
-    /* بطاقات الأداء المالي */
     [data-testid="stMetricValue"] {
         font-size: 28px !important;
         font-weight: 800 !important;
@@ -68,7 +64,6 @@ st.markdown("""
         letter-spacing: 0.5px;
     }
     
-    /* الفواصل */
     hr {
         border-color: #1f2937 !important;
     }
@@ -111,14 +106,76 @@ def get_alpaca_client(acc_config):
     except Exception:
         return None
 
-def style_pnl(val):
-    if isinstance(val, (int, float)):
-        color = '#10b981' if val > 0 else '#f43f5e' if val < 0 else '#6b7280'
-        return f'color: {color}; font-weight: bold;'
-    return ''
+def style_pnl_column(s):
+    colors = []
+    for val in s:
+        if isinstance(val, (int, float)):
+            if val > 0:
+                colors.append('color: #10b981; font-weight: bold;')
+            elif val < 0:
+                colors.append('color: #f43f5e; font-weight: bold;')
+            else:
+                colors.append('color: #6b7280;')
+        else:
+            colors.append('')
+    return colors
 
 def render_account_dashboard(account_name, acc_data):
     api = get_alpaca_client(acc_data)
     if api:
         try:
             account_info = api.get_account()
+            equity = float(account_info.equity)
+            cash = float(account_info.cash)
+            buying_power = float(account_info.buying_power)
+            
+            col1, col2, col3 = st.columns(3)
+            col1.metric("إجمالي المحفظة (Equity)", f"${equity:,.2f}")
+            col2.metric("السيولة المتاحة (Cash)", f"${cash:,.2f}")
+            col3.metric("القوة الشرائية (Buying Power)", f"${buying_power:,.2f}")
+            
+            st.divider()
+            
+            st.subheader("📈 المراكز والصفقات النشطة")
+            positions = api.list_positions()
+            
+            if positions:
+                pos_list = []
+                for p in positions:
+                    unrealized_pl = float(p.unrealized_pl)
+                    unrealized_plpc = float(p.unrealized_plpc) * 100
+                    
+                    pos_list.append({
+                        "الرمز": p.symbol,
+                        "الكمية": int(float(p.qty)),
+                        "سعر الدخول": float(p.avg_entry_price),
+                        "السعر اللحظي": float(p.current_price),
+                        "الربح/الخسارة ($)": unrealized_pl,
+                        "الربح/الخسارة (%)": unrealized_plpc
+                    })
+                
+                df_pos = pd.DataFrame(pos_list)
+                
+                # تم التعديل هنا لتفادي أي خطأ في إصدارات Pandas المحدثة
+                styled_df = df_pos.style.apply(
+                    style_pnl_column, subset=["الربح/الخسارة ($)", "الربح/الخسارة (%)"]
+                ).format({
+                    "سعر الدخول": "${:.2f}",
+                    "السعر اللحظي": "${:.2f}",
+                    "الربح/الخسارة ($)": "${:+.2f}",
+                    "الربح/الخسارة (%)": "{:+.2f}%"
+                })
+                
+                st.dataframe(styled_df, use_container_width=True)
+            else:
+                st.info("لا توجد مراكز مفتوحة حالياً لهذا الحساب.")
+                
+            st.divider()
+            
+            st.subheader("📑 سجل العمليات والتنفيذ (CSV)")
+            log_file = acc_data["LOG_FILE"]
+            if os.path.exists(log_file):
+                df_logs = pd.read_csv(log_file)
+                st.dataframe(df_logs.tail(20), use_container_width=True)
+            else:
+                st.warning(f"لم يتم
