@@ -6,68 +6,70 @@ import time
 
 # --- إعدادات الصفحة الأساسية ---
 st.set_page_config(
-    page_title="Institutional Trading Terminal",
+    page_title="Professional Trading Terminal",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# --- تنسيق CSS احترافي يماثل منصات التداول المؤسسية ---
+# --- تنسيق ألوان محترفي التداول (Modern Dark Theme) ---
 st.markdown("""
     <style>
-    /* خلفية التطبيق العامة */
+    /* خلفية المنصة داكنة وفاخرة */
     .stApp {
-        background-color: #0d1117;
-        color: #c9d1d9;
+        background-color: #0b0e14;
+        color: #e1e6ed;
     }
     
-    /* تنسيق التبويبات العلويّة احترافي */
+    /* تنسيق التبويبات العلويّة بلون أزرق نيوني فاخر */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
+        gap: 10px;
         justify-content: center;
-        background-color: #161b22;
-        padding: 8px;
-        border-radius: 12px;
-        border: 1px solid #30363d;
+        background-color: #151a23;
+        padding: 10px;
+        border-radius: 14px;
+        border: 1px solid #232a36;
     }
     .stTabs [data-baseweb="tab"] {
-        height: 45px;
+        height: 48px;
         white-space: pre-wrap;
-        background-color: transparent;
-        border-radius: 8px;
-        color: #8b949e;
-        font-weight: 600;
+        background-color: #1a212d;
+        border-radius: 10px;
+        color: #94a3b8;
+        font-weight: 700;
         font-size: 14px;
-        border: none;
-        transition: all 0.2s ease;
+        border: 1px solid #2d3748;
+        transition: all 0.3s ease;
     }
     .stTabs [aria-selected="true"] {
-        background-color: #1f6feb !important;
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
         color: #ffffff !important;
-        box-shadow: 0px 4px 12px rgba(31, 111, 235, 0.3);
+        border: 1px solid #3b82f6 !important;
+        box-shadow: 0px 4px 20px rgba(37, 99, 235, 0.4);
     }
     
-    /* تصميم بطاقات المؤشرات المالية */
+    /* بطاقات المؤشرات المالية بتصميم زجاجي عاكس */
     [data-testid="stMetricValue"] {
-        font-size: 28px !important;
-        font-weight: 700 !important;
-        color: #f0f6fc !important;
+        font-size: 30px !important;
+        font-weight: 800 !important;
+        color: #38bdf8 !important;
     }
     [data-testid="stMetricLabel"] {
         font-size: 13px !important;
-        color: #8b949e !important;
-        font-weight: 500 !important;
+        color: #94a3b8 !important;
+        font-weight: 600 !important;
+        text-transform: uppercase;
     }
     
-    /* فاصل إنسيابي */
+    /* الفواصل والمربعات */
     hr {
-        border-color: #21262d !important;
+        border-color: #1e293b !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
 st.title("⚡ منصة التحكم بالتداول المباشر")
-st.caption("نظام التداول الآلي | التغطية اللحظية للحسابات والمحافظ")
+st.caption("نظام التداول الآلي المؤسسي | التغطية اللحظية للمحافظ والأداء المالي")
 
 # --- تعريف بيانات الحسابات ومفاتيح الربط ---
 ACCOUNTS = {
@@ -104,7 +106,7 @@ def get_alpaca_client(acc_config):
 
 def style_pnl(val):
     if isinstance(val, (int, float)):
-        color = '#00E676' if val > 0 else '#FF5252' if val < 0 else '#8b949e'
+        color = '#10b981' if val > 0 else '#ef4444' if val < 0 else '#94a3b8'
         return f'color: {color}; font-weight: bold;'
     return ''
 
@@ -117,7 +119,7 @@ def render_account_dashboard(account_name, acc_data):
             cash = float(account_info.cash)
             buying_power = float(account_info.buying_power)
             
-            # بطاقات الأداء المالي بالتنسيق المؤسسي
+            # بطاقات الأداء المالي
             col1, col2, col3 = st.columns(3)
             col1.metric("إجمالي المحفظة (Equity)", f"${equity:,.2f}")
             col2.metric("الكاش المتاح (Cash)", f"${cash:,.2f}")
@@ -125,7 +127,7 @@ def render_account_dashboard(account_name, acc_data):
             
             st.divider()
             
-            st.subheader("📊 الصفقات المفتوحة اللحظية")
+            st.subheader("📊 الصفقات النشطة اللحظية")
             positions = api.list_positions()
             
             if positions:
@@ -145,7 +147,6 @@ def render_account_dashboard(account_name, acc_data):
                 
                 df_pos = pd.DataFrame(pos_list)
                 
-                # استخدام map بدلاً من applymap لتفادي الخطأ مع الإصدارات الجديدة
                 styled_df = df_pos.style.map(
                     style_pnl, subset=["الربح/الخسارة ($)", "الربح/الخسارة (%)"]
                 ).format({
@@ -174,7 +175,7 @@ def render_account_dashboard(account_name, acc_data):
     else:
         st.error("فشل الاتصال بمنصة التداول لهذا الحساب.")
 
-# --- إنشاء التبويبات العلويّة ---
+# --- التبويبات العلويّة المنسقة ---
 tabs = st.tabs([
     "🌐 الملخص الشامل",
     "📊 الحساب الأول ($1000)",
@@ -182,7 +183,7 @@ tabs = st.tabs([
     "📊 الحساب الثاني - bot_account2 ($2000)"
 ])
 
-# 1️⃣ تبويب الملخص الشامل
+# 1️⃣ الملخص الشامل
 with tabs[0]:
     st.header("🌐 نظرة عامة شاملة لكل الحسابات")
     total_combined_equity = 0.0
@@ -214,18 +215,18 @@ with tabs[0]:
     df_summary = pd.DataFrame(summary_data)
     st.dataframe(df_summary, use_container_width=True)
 
-# 2️⃣ تبويب الحساب الأول
+# 2️⃣ الحساب الأول
 with tabs[1]:
     render_account_dashboard("الحساب الأول ($1000)", ACCOUNTS["الحساب الأول ($1000)"])
 
-# 3️⃣ تبويب الحساب الثاني bot2
+# 3️⃣ الحساب الثاني bot2
 with tabs[2]:
     render_account_dashboard("الحساب الثاني - bot2 ($2000)", ACCOUNTS["الحساب الثاني - bot2 ($2000)"])
 
-# 4️⃣ تبويب الحساب الثاني bot_account2
+# 4️⃣ الحساب الثاني bot_account2
 with tabs[3]:
     render_account_dashboard("الحساب الثاني - bot_account2 ($2000)", ACCOUNTS["الحساب الثاني - bot_account2 ($2000)"])
 
-# --- التحديث اللحظي للأسعار كل 10 ثوانٍ ---
+# --- إعادة إنعاش الأسعار تلقائياً كل 10 ثوانٍ ---
 time.sleep(10)
 st.rerun()
