@@ -4,7 +4,7 @@ import alpaca_trade_api as tradeapi
 import os
 import time
 
-# --- إعدادات الصفحة عريضة وبدون القائمة الجانبية المزعجة ---
+# --- إعدادات الصفحة عريضة وبدون القائمة الجانبية ---
 st.set_page_config(
     page_title="Live Multi-Bot Dashboard",
     page_icon="📈",
@@ -145,8 +145,8 @@ def render_account_dashboard(account_name, acc_data):
 tabs = st.tabs([
     "🌐 الملخص الشامل",
     "📊 الحساب الأول ($1000)",
-    "📊 الحساب الثاني - A ($2000)",
-    "📊 الحساب الثاني - B ($2000)"
+    "📊 الحساب الثاني - bot2 ($2000)",
+    "📊 الحساب الثاني - bot_account2 ($2000)"
 ])
 
 # 1️⃣ تبويب الملخص الشامل
@@ -185,14 +185,14 @@ with tabs[0]:
 with tabs[1]:
     render_account_dashboard("الحساب الأول ($1000)", ACCOUNTS["الحساب الأول ($1000)"])
 
-# 3️⃣ تبويب الحساب الثاني A
+# 3️⃣ تبويب الحساب الثاني bot2
 with tabs[2]:
-    render_account_dashboard("الحساب الثاني - A ($2000)", ACCOUNTS["الحساب الثاني - A ($2000)"])
+    render_account_dashboard("الحساب الثاني - bot2 ($2000)", ACCOUNTS["الحساب الثاني - bot2 ($2000)"])
 
-# 4️⃣ تبويب الحساب الثاني B
+# 4️⃣ تبويب الحساب الثاني bot_account2
 with tabs[3]:
-    render_account_dashboard("الحساب الثاني - B ($2000)", ACCOUNTS["الحساب الثاني - B ($2000)"])
+    render_account_dashboard("الحساب الثاني - bot_account2 ($2000)", ACCOUNTS["الحساب الثاني - bot_account2 ($2000)"])
 
-# --- إعادة إنعاش الصفحة تلقائياً للتحديث اللحظي للأسعار كود كل 10 ثوانٍ ---
+# --- إعادة إنعاش الصفحة تلقائياً للتحديث اللحظي للأسعار كل 10 ثوانٍ ---
 time.sleep(10)
 st.rerun()
