@@ -4,46 +4,62 @@ import alpaca_trade_api as tradeapi
 import os
 import time
 
-# --- إعدادات الصفحة ---
+# --- إعدادات الصفحة عريضة وبدون القائمة الجانبية المزعجة ---
 st.set_page_config(
     page_title="Live Multi-Bot Dashboard",
     page_icon="📈",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
-st.title("🚀 لوحة التحكم المباشرة للبوتات والحسابات")
+# --- تنسيق CSS مخصص لجعل التبويبات في المنتصف وبشكل احترافي ---
+st.markdown("""
+    <style>
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 12px;
+        justify-content: center;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: #1e222d;
+        border-radius: 8px 8px 0px 0px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        color: #ffffff;
+        font-weight: bold;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #2962ff !important;
+        color: #ffffff !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-# --- إضافة تحديث تلقائي حقيقي للأسعار كل 10 ثوانٍ ---
-st.sidebar.header("🔄 التحديث اللحظي")
-auto_refresh = st.sidebar.checkbox("تفعيل التحديث التلقائي المباشر", value=True)
-refresh_interval = st.sidebar.slider("معدل التحديث (بالثواني):", min_value=3, max_value=60, value=10)
+st.title("🚀 لوحة التحكم المباشرة للبوتات والحسابات")
+st.caption("متابعة حية ولحظية لأداء المحافظ والصفقات المفتوحة")
 
 # --- تعريف بيانات الحسابات ومفاتيح الربط ---
 ACCOUNTS = {
-    "الحساب الأول (أسهم $1000)": {
+    "الحساب الأول ($1000)": {
         "API_KEY": "PKOEYQXJQFVILWXK6C4V5LXSXW",
         "SECRET_KEY": "A6zB4DC1idneqFUke5rEPp2hEAHYCDQCj8hjNmkS2zGf",
         "BASE_URL": "https://paper-api.alpaca.markets",
-        "LOG_FILE": "trades_history_account1.csv"
+        "LOG_FILE": "trades_history_bot1.csv"
     },
-    "الحساب الثاني (نسخة A - $2000)": {
-        "API_KEY": "PKF5ARLBNCOULM3IMMSUZE4CIG",
-        "SECRET_KEY": "CYdhvBVFGh6gKh3DAWJM7X8KgujxD7PjptCEa43MPc7k",
-        "BASE_URL": "https://paper-api.alpaca.markets",
-        "LOG_FILE": "trades_history_account2.csv"
-    },
-    "الحساب الثاني (نسخة B - $2000)": {
+    "الحساب الثاني - bot2 ($2000)": {
         "API_KEY": "PKGW26NSZJDLAMW2M7VSHJYMSL",
         "SECRET_KEY": "DpyM3KjPxBr4NumicNKVs7YczJuwZiudDMAxP84NCsTP",
         "BASE_URL": "https://paper-api.alpaca.markets",
         "LOG_FILE": "trades_history_bot2.csv"
+    },
+    "الحساب الثاني - bot_account2 ($2000)": {
+        "API_KEY": "PKF5ARLBNCOULM3IMMSUZE4CIG",
+        "SECRET_KEY": "CYdhvBVFGh6gKh3DAWJM7X8KgujxD7PjptCEa43MPc7k",
+        "BASE_URL": "https://paper-api.alpaca.markets",
+        "LOG_FILE": "trades_history_account2.csv"
     }
 }
-
-selected_account_name = st.sidebar.selectbox(
-    "اختر الحساب للعرض:",
-    list(ACCOUNTS.keys()) + ["🌐 الملخص الشامل لجميع الحسابات"]
-)
 
 def get_alpaca_client(acc_config):
     try:
@@ -56,20 +72,14 @@ def get_alpaca_client(acc_config):
     except Exception:
         return None
 
-# دالة لتلوين قيم الربح والخسارة في الجدول
 def style_pnl(val):
     if isinstance(val, (int, float)):
-        color = 'green' if val > 0 else 'red' if val < 0 else 'gray'
+        color = '#00c853' if val > 0 else '#ff5252' if val < 0 else '#808080'
         return f'color: {color}; font-weight: bold;'
     return ''
 
-# --- عرض الحساب المنفرد ---
-if selected_account_name != "🌐 الملخص الشامل لجميع الحسابات":
-    acc_data = ACCOUNTS[selected_account_name]
-    st.header(f"📊 تفاصيل: {selected_account_name}")
-    
+def render_account_dashboard(account_name, acc_data):
     api = get_alpaca_client(acc_data)
-    
     if api:
         try:
             account_info = api.get_account()
@@ -103,8 +113,6 @@ if selected_account_name != "🌐 الملخص الشامل لجميع الحس�
                     })
                 
                 df_pos = pd.DataFrame(pos_list)
-                
-                # تطبيق الألوان (أخضر للربح، أحمر للخسارة)
                 styled_df = df_pos.style.applymap(
                     style_pnl, subset=["الربح/الخسارة ($)", "الربح/الخسارة (%)"]
                 ).format({
@@ -130,9 +138,19 @@ if selected_account_name != "🌐 الملخص الشامل لجميع الحس�
                 
         except Exception as e:
             st.error(f"حدث خطأ أثناء جلب البيانات: {e}")
+    else:
+        st.error("فشل الاتصال بمنصة التداول لهذا الحساب.")
 
-# --- عرض الملخص الشامل ---
-else:
+# --- إنشاء التبويبات العلويّة المنسقة في الوسط ---
+tabs = st.tabs([
+    "🌐 الملخص الشامل",
+    "📊 الحساب الأول ($1000)",
+    "📊 الحساب الثاني - A ($2000)",
+    "📊 الحساب الثاني - B ($2000)"
+])
+
+# 1️⃣ تبويب الملخص الشامل
+with tabs[0]:
     st.header("🌐 نظرة عامة شاملة لكل الحسابات")
     total_combined_equity = 0.0
     summary_data = []
@@ -163,7 +181,18 @@ else:
     df_summary = pd.DataFrame(summary_data)
     st.dataframe(df_summary, use_container_width=True)
 
-# آلية إعادة إنعاش الصفحة تلقائياً لتجديد الأسعار اللحظية
-if auto_refresh:
-    time.sleep(refresh_interval)
-    st.rerun()
+# 2️⃣ تبويب الحساب الأول
+with tabs[1]:
+    render_account_dashboard("الحساب الأول ($1000)", ACCOUNTS["الحساب الأول ($1000)"])
+
+# 3️⃣ تبويب الحساب الثاني A
+with tabs[2]:
+    render_account_dashboard("الحساب الثاني - A ($2000)", ACCOUNTS["الحساب الثاني - A ($2000)"])
+
+# 4️⃣ تبويب الحساب الثاني B
+with tabs[3]:
+    render_account_dashboard("الحساب الثاني - B ($2000)", ACCOUNTS["الحساب الثاني - B ($2000)"])
+
+# --- إعادة إنعاش الصفحة تلقائياً للتحديث اللحظي للأسعار كود كل 10 ثوانٍ ---
+time.sleep(10)
+st.rerun()
