@@ -4,40 +4,70 @@ import alpaca_trade_api as tradeapi
 import os
 import time
 
-# --- إعدادات الصفحة عريضة وبدون القائمة الجانبية ---
+# --- إعدادات الصفحة الأساسية ---
 st.set_page_config(
-    page_title="Live Multi-Bot Dashboard",
-    page_icon="📈",
+    page_title="Institutional Trading Terminal",
+    page_icon="⚡",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# --- تنسيق CSS مخصص لجعل التبويبات في المنتصف وبشكل احترافي ---
+# --- تنسيق CSS احترافي يماثل منصات التداول المؤسسية ---
 st.markdown("""
     <style>
+    /* خلفية التطبيق العامة */
+    .stApp {
+        background-color: #0d1117;
+        color: #c9d1d9;
+    }
+    
+    /* تنسيق التبويبات العلويّة احترافي */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 12px;
+        gap: 8px;
         justify-content: center;
+        background-color: #161b22;
+        padding: 8px;
+        border-radius: 12px;
+        border: 1px solid #30363d;
     }
     .stTabs [data-baseweb="tab"] {
-        height: 50px;
+        height: 45px;
         white-space: pre-wrap;
-        background-color: #1e222d;
-        border-radius: 8px 8px 0px 0px;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        color: #ffffff;
-        font-weight: bold;
+        background-color: transparent;
+        border-radius: 8px;
+        color: #8b949e;
+        font-weight: 600;
+        font-size: 14px;
+        border: none;
+        transition: all 0.2s ease;
     }
     .stTabs [aria-selected="true"] {
-        background-color: #2962ff !important;
+        background-color: #1f6feb !important;
         color: #ffffff !important;
+        box-shadow: 0px 4px 12px rgba(31, 111, 235, 0.3);
+    }
+    
+    /* تصميم بطاقات المؤشرات المالية */
+    [data-testid="stMetricValue"] {
+        font-size: 28px !important;
+        font-weight: 700 !important;
+        color: #f0f6fc !important;
+    }
+    [data-testid="stMetricLabel"] {
+        font-size: 13px !important;
+        color: #8b949e !important;
+        font-weight: 500 !important;
+    }
+    
+    /* فاصل إنسيابي */
+    hr {
+        border-color: #21262d !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
-st.title("🚀 لوحة التحكم المباشرة للبوتات والحسابات")
-st.caption("متابعة حية ولحظية لأداء المحافظ والصفقات المفتوحة")
+st.title("⚡ منصة التحكم بالتداول المباشر")
+st.caption("نظام التداول الآلي | التغطية اللحظية للحسابات والمحافظ")
 
 # --- تعريف بيانات الحسابات ومفاتيح الربط ---
 ACCOUNTS = {
@@ -74,7 +104,7 @@ def get_alpaca_client(acc_config):
 
 def style_pnl(val):
     if isinstance(val, (int, float)):
-        color = '#00c853' if val > 0 else '#ff5252' if val < 0 else '#808080'
+        color = '#00E676' if val > 0 else '#FF5252' if val < 0 else '#8b949e'
         return f'color: {color}; font-weight: bold;'
     return ''
 
@@ -87,14 +117,15 @@ def render_account_dashboard(account_name, acc_data):
             cash = float(account_info.cash)
             buying_power = float(account_info.buying_power)
             
+            # بطاقات الأداء المالي بالتنسيق المؤسسي
             col1, col2, col3 = st.columns(3)
             col1.metric("إجمالي المحفظة (Equity)", f"${equity:,.2f}")
             col2.metric("الكاش المتاح (Cash)", f"${cash:,.2f}")
-            col3.metric("القوة الشرائية", f"${buying_power:,.2f}")
+            col3.metric("القوة الشرائية (Buying Power)", f"${buying_power:,.2f}")
             
             st.divider()
             
-            st.subheader("📌 الصفقات النشطة حالياً (تحديث مباشر)")
+            st.subheader("📊 الصفقات المفتوحة اللحظية")
             positions = api.list_positions()
             
             if positions:
@@ -113,7 +144,9 @@ def render_account_dashboard(account_name, acc_data):
                     })
                 
                 df_pos = pd.DataFrame(pos_list)
-                styled_df = df_pos.style.applymap(
+                
+                # استخدام map بدلاً من applymap لتفادي الخطأ مع الإصدارات الجديدة
+                styled_df = df_pos.style.map(
                     style_pnl, subset=["الربح/الخسارة ($)", "الربح/الخسارة (%)"]
                 ).format({
                     "سعر الدخول": "${:.2f}",
@@ -124,7 +157,7 @@ def render_account_dashboard(account_name, acc_data):
                 
                 st.dataframe(styled_df, use_container_width=True)
             else:
-                st.info("لا توجد صفقات مفتوحة حالياً لهذا الحساب.")
+                st.info("💡 لا توجد صفقات مفتوحة حالياً لهذا الحساب.")
                 
             st.divider()
             
@@ -134,14 +167,14 @@ def render_account_dashboard(account_name, acc_data):
                 df_logs = pd.read_csv(log_file)
                 st.dataframe(df_logs.tail(20), use_container_width=True)
             else:
-                st.warning(f"لم يتم العثور على ملف السجل `{log_file}` بعد.")
+                st.warning(f"لم يتم تسجيل صفقات جديدة في السجل `{log_file}` حتى الآن.")
                 
         except Exception as e:
-            st.error(f"حدث خطأ أثناء جلب البيانات: {e}")
+            st.error(f"حدث خطأ أثناء الاتصال: {e}")
     else:
         st.error("فشل الاتصال بمنصة التداول لهذا الحساب.")
 
-# --- إنشاء التبويبات العلويّة المنسقة في الوسط ---
+# --- إنشاء التبويبات العلويّة ---
 tabs = st.tabs([
     "🌐 الملخص الشامل",
     "📊 الحساب الأول ($1000)",
@@ -193,6 +226,6 @@ with tabs[2]:
 with tabs[3]:
     render_account_dashboard("الحساب الثاني - bot_account2 ($2000)", ACCOUNTS["الحساب الثاني - bot_account2 ($2000)"])
 
-# --- إعادة إنعاش الصفحة تلقائياً للتحديث اللحظي للأسعار كل 10 ثوانٍ ---
+# --- التحديث اللحظي للأسعار كل 10 ثوانٍ ---
 time.sleep(10)
 st.rerun()
