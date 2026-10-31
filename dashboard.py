@@ -4,7 +4,7 @@ import alpaca_trade_api as tradeapi
 import os
 import time
 
-# --- إعدادات الصفحة الأساسية ---
+# --- إعدادات الصفحة أساسية ومحسنة للجوال ---
 st.set_page_config(
     page_title="Terminal | Enterprise Trading",
     page_icon="⚜️",
@@ -12,56 +12,63 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- التنسيق البصري (Cyber Gold Theme) ---
+# --- ثيم محدد وثابت يمنع اختفاء النصوص في Light/Dark mode ويدعم الجوال ---
 st.markdown("""
     <style>
+    /* إجبار الخلفية الداكنة وتفادي التداخل مع وضع اللايت */
     .stApp {
-        background-color: #08090c;
-        color: #d1d5db;
+        background-color: #08090c !important;
+        color: #e5e7eb !important;
     }
     
-    h1 {
+    h1, h2, h3, h4, span, label, p {
         color: #f3f4f6 !important;
-        font-weight: 800 !important;
-        letter-spacing: -0.5px;
     }
-    
+
+    /* تحسين التبويبات لتظهر بشكل متجاوب وتلتف في الشاشات الصغيرة */
     .stTabs [data-baseweb="tab-list"] {
         gap: 6px;
         justify-content: center;
-        background-color: #111318;
+        background-color: #111318 !important;
         padding: 6px;
         border-radius: 10px;
-        border: 1px solid #1f242d;
+        border: 1px solid #1f242d !important;
+        flex-wrap: wrap !important;
     }
     .stTabs [data-baseweb="tab"] {
-        height: 44px;
-        white-space: pre-wrap;
-        background-color: #161a23;
+        height: auto !important;
+        min-height: 40px;
+        white-space: normal !important;
+        background-color: #161a23 !important;
         border-radius: 8px;
-        color: #9ca3af;
+        color: #d1d5db !important;
         font-weight: 600;
         font-size: 13px;
-        border: 1px solid #28303e;
-        transition: all 0.2s ease-in-out;
+        border: 1px solid #28303e !important;
+        padding: 6px 12px !important;
     }
     .stTabs [aria-selected="true"] {
         background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
         color: #ffffff !important;
         border: 1px solid #f59e0b !important;
-        box-shadow: 0px 2px 12px rgba(217, 119, 6, 0.35);
     }
     
+    /* ضبط بطاقات الأداء المالي للجوال */
     [data-testid="stMetricValue"] {
-        font-size: 28px !important;
+        font-size: 22px !important;
         font-weight: 800 !important;
         color: #f59e0b !important;
     }
     [data-testid="stMetricLabel"] {
         font-size: 12px !important;
-        color: #6b7280 !important;
+        color: #9ca3af !important;
         font-weight: 600 !important;
-        letter-spacing: 0.5px;
+    }
+
+    /* إصلاح خلفية وسطور الجداول للوضع الداكن الموحد */
+    [data-testid="stDataFrame"] {
+        background-color: #111318 !important;
+        border-radius: 8px;
     }
     
     hr {
@@ -115,7 +122,7 @@ def style_pnl_column(s):
             elif val < 0:
                 colors.append('color: #f43f5e; font-weight: bold;')
             else:
-                colors.append('color: #6b7280;')
+                colors.append('color: #9ca3af;')
         else:
             colors.append('')
     return colors
@@ -129,10 +136,11 @@ def render_account_dashboard(account_name, acc_data):
             cash = float(account_info.cash)
             buying_power = float(account_info.buying_power)
             
+            # تقسيم الشاشة إلى 3 أعمدة
             col1, col2, col3 = st.columns(3)
-            col1.metric("إجمالي المحفظة (Equity)", f"${equity:,.2f}")
-            col2.metric("السيولة المتاحة (Cash)", f"${cash:,.2f}")
-            col3.metric("القوة الشرائية (Buying Power)", f"${buying_power:,.2f}")
+            col1.metric("إجمالي المحفظة", f"${equity:,.2f}")
+            col2.metric("السيولة المتاحة", f"${cash:,.2f}")
+            col3.metric("القوة الشرائية", f"${buying_power:,.2f}")
             
             st.divider()
             
