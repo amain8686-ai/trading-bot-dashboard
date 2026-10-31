@@ -4,7 +4,7 @@ import alpaca_trade_api as tradeapi
 import os
 import time
 
-# --- إعدادات الصفحة أساسية ومحسنة للجوال ---
+# --- إعدادات الصفحة الأساسية ---
 st.set_page_config(
     page_title="Terminal | Enterprise Trading",
     page_icon="⚜️",
@@ -12,20 +12,21 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- ثيم محدد وثابت يمنع اختفاء النصوص في Light/Dark mode ويدعم الجوال ---
+# --- تنسيق CSS قاطع لتلوين الجداول باللون الداكن مع نصوص واضحة جداً ---
 st.markdown("""
     <style>
-    /* إجبار الخلفية الداكنة وتفادي التداخل مع وضع اللايت */
+    /* خلفية التطبيق العامة */
     .stApp {
         background-color: #08090c !important;
-        color: #e5e7eb !important;
+        color: #f3f4f6 !important;
     }
-    
+
+    /* إجبار لون العناوين والنصوص */
     h1, h2, h3, h4, span, label, p {
         color: #f3f4f6 !important;
     }
 
-    /* تحسين التبويبات لتظهر بشكل متجاوب وتلتف في الشاشات الصغيرة */
+    /* تنسيق التبويبات العلويّة */
     .stTabs [data-baseweb="tab-list"] {
         gap: 6px;
         justify-content: center;
@@ -52,10 +53,10 @@ st.markdown("""
         color: #ffffff !important;
         border: 1px solid #f59e0b !important;
     }
-    
-    /* ضبط بطاقات الأداء المالي للجوال */
+
+    /* بطاقات الأداء المالي */
     [data-testid="stMetricValue"] {
-        font-size: 22px !important;
+        font-size: 26px !important;
         font-weight: 800 !important;
         color: #f59e0b !important;
     }
@@ -65,12 +66,20 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* إصلاح خلفية وسطور الجداول للوضع الداكن الموحد */
-    [data-testid="stDataFrame"] {
+    /* إصلاح لون وشكل الجداول بالكامل المباشر (استهداف Glide Data Grid) */
+    div[data-testid="stDataFrame"] {
         background-color: #111318 !important;
-        border-radius: 8px;
+        border: 1px solid #1f242d !important;
+        border-radius: 10px !important;
+        padding: 4px;
     }
     
+    /* جعل ألوان الجدول داكنة والنصوص بيضاء شديدة التباين */
+    div[data-testid="stDataFrame"] * {
+        background-color: #111318 !important;
+        color: #ffffff !important;
+    }
+
     hr {
         border-color: #1f2937 !important;
     }
@@ -113,20 +122,6 @@ def get_alpaca_client(acc_config):
     except Exception:
         return None
 
-def style_pnl_column(s):
-    colors = []
-    for val in s:
-        if isinstance(val, (int, float)):
-            if val > 0:
-                colors.append('color: #10b981; font-weight: bold;')
-            elif val < 0:
-                colors.append('color: #f43f5e; font-weight: bold;')
-            else:
-                colors.append('color: #9ca3af;')
-        else:
-            colors.append('')
-    return colors
-
 def render_account_dashboard(account_name, acc_data):
     api = get_alpaca_client(acc_data)
     if api:
@@ -136,7 +131,6 @@ def render_account_dashboard(account_name, acc_data):
             cash = float(account_info.cash)
             buying_power = float(account_info.buying_power)
             
-            # تقسيم الشاشة إلى 3 أعمدة
             col1, col2, col3 = st.columns(3)
             col1.metric("إجمالي المحفظة", f"${equity:,.2f}")
             col2.metric("السيولة المتاحة", f"${cash:,.2f}")
@@ -156,24 +150,14 @@ def render_account_dashboard(account_name, acc_data):
                     pos_list.append({
                         "الرمز": p.symbol,
                         "الكمية": int(float(p.qty)),
-                        "سعر الدخول": float(p.avg_entry_price),
-                        "السعر اللحظي": float(p.current_price),
-                        "الربح/الخسارة ($)": unrealized_pl,
-                        "الربح/الخسارة (%)": unrealized_plpc
+                        "سعر الدخول": f"${float(p.avg_entry_price):.2f}",
+                        "السعر اللحظي": f"${float(p.current_price):.2f}",
+                        "الربح/الخسارة ($)": f"${unrealized_pl:+.2f}",
+                        "الربح/الخسارة (%)": f"{unrealized_plpc:+.2f}%"
                     })
                 
                 df_pos = pd.DataFrame(pos_list)
-                
-                styled_df = df_pos.style.apply(
-                    style_pnl_column, subset=["الربح/الخسارة ($)", "الربح/الخسارة (%)"]
-                ).format({
-                    "سعر الدخول": "${:.2f}",
-                    "السعر اللحظي": "${:.2f}",
-                    "الربح/الخسارة ($)": "${:+.2f}",
-                    "الربح/الخسارة (%)": "{:+.2f}%"
-                })
-                
-                st.dataframe(styled_df, use_container_width=True)
+                st.dataframe(df_pos, use_container_width=True)
             else:
                 st.info("لا توجد مراكز مفتوحة حالياً لهذا الحساب.")
                 
