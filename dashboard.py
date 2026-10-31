@@ -4,7 +4,7 @@ import alpaca_trade_api as tradeapi
 import os
 import time
 
-# --- إعدادات الصفحة أساسية وتحديد الثيم الداكن رسمياً ---
+# --- إعدادات الصفحة الأساسية ---
 st.set_page_config(
     page_title="Terminal | Enterprise Trading",
     page_icon="⚜️",
@@ -12,25 +12,24 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- تنسيق CSS مخصص للواجهة بدون تحريب ألوان الجداول ---
+# --- تنسيق CSS المتطور والمستقر للمنصة ---
 st.markdown("""
     <style>
-    /* 1. صبغ خلفية التطبيق بالكامل باللون الأسود وتغطية الشريط العلوي */
+    /* خلفية التطبيق الداكنة بالكامل */
     .stApp, header[data-testid="stHeader"] {
         background-color: #0d1117 !important;
     }
     
-    /* 2. إخفاء الهيدر الشفاف الأبيض العلوي الخاص بـ Streamlit */
     header[data-testid="stHeader"] {
         background: transparent !important;
     }
 
-    /* 3. تنسيق العناوين والنصوص الرئيسية */
+    /* العناوين والنصوص */
     h1, h2, h3, h4, span, label, p {
         color: #f0f6fc !important;
     }
 
-    /* 4. تنسيق التبويبات العلويّة */
+    /* تنسيق التبويبات العلويّة المتجاوبة مع الجوال */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
         justify-content: center;
@@ -57,7 +56,7 @@ st.markdown("""
         border: 1px solid #f59e0b !important;
     }
 
-    /* 5. بطاقات الأداء المالي */
+    /* بطاقات الأداء المالي */
     [data-testid="stMetricValue"] {
         font-size: 26px !important;
         font-weight: 800 !important;
@@ -123,4 +122,51 @@ def render_account_dashboard(account_name, acc_data):
             col1, col2, col3 = st.columns(3)
             col1.metric("إجمالي المحفظة", f"${equity:,.2f}")
             col2.metric("السيولة المتاحة", f"${cash:,.2f}")
-            col3.
+            col3.metric("القوة الشرائية", f"${buying_power:,.2f}")
+            
+            st.divider()
+            
+            st.subheader("📈 المراكز والصفقات النشطة")
+            positions = api.list_positions()
+            
+            if positions:
+                pos_list = []
+                for p in positions:
+                    unrealized_pl = float(p.unrealized_pl)
+                    unrealized_plpc = float(p.unrealized_plpc) * 100
+                    
+                    pos_list.append({
+                        "الرمز": p.symbol,
+                        "الكمية": int(float(p.qty)),
+                        "سعر الدخول": f"${float(p.avg_entry_price):.2f}",
+                        "السعر اللحظي": f"${float(p.current_price):.2f}",
+                        "الربح/الخسارة ($)": f"${unrealized_pl:+.2f}",
+                        "الربح/الخسارة (%)": f"{unrealized_plpc:+.2f}%"
+                    })
+                
+                df_pos = pd.DataFrame(pos_list)
+                st.dataframe(df_pos, use_container_width=True)
+            else:
+                st.info("لا توجد مراكز مفتوحة حالياً لهذا الحساب.")
+                
+            st.divider()
+            
+            st.subheader("📑 سجل العمليات والتنفيذ (CSV)")
+            log_file = acc_data["LOG_FILE"]
+            if os.path.exists(log_file):
+                df_logs = pd.read_csv(log_file)
+                st.dataframe(df_logs.tail(20), use_container_width=True)
+            else:
+                st.warning(f"لم يتم تسجيل صفقات في الملف {log_file} حتى الآن.")
+                
+        except Exception as e:
+            st.error(f"خطأ في الاتصال: {e}")
+    else:
+        st.error("تعذر الاتصال بخوادم التداول.")
+
+# --- التبويبات العلويّة ---
+tabs = st.tabs([
+    "🏛️ النظرة الشاملة",
+    "🪙 الحساب الأول ($1000)",
+    "💎 الحساب الثاني - bot2 ($2000)",
+    "👑 الحساب الثاني - bot_
