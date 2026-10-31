@@ -4,7 +4,7 @@ import alpaca_trade_api as tradeapi
 import os
 import time
 
-# --- إعدادات الصفحة الأساسية ---
+# --- إعدادات الصفحة أساسية وتحديد الثيم الداكن رسمياً ---
 st.set_page_config(
     page_title="Terminal | Enterprise Trading",
     page_icon="⚜️",
@@ -12,41 +12,44 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- تنسيق CSS قاطع لتلوين الجداول باللون الداكن مع نصوص واضحة جداً ---
+# --- تنسيق CSS مخصص للواجهة بدون تحريب ألوان الجداول ---
 st.markdown("""
     <style>
-    /* خلفية التطبيق العامة */
-    .stApp {
-        background-color: #08090c !important;
-        color: #f3f4f6 !important;
+    /* 1. صبغ خلفية التطبيق بالكامل باللون الأسود وتغطية الشريط العلوي */
+    .stApp, header[data-testid="stHeader"] {
+        background-color: #0d1117 !important;
+    }
+    
+    /* 2. إخفاء الهيدر الشفاف الأبيض العلوي الخاص بـ Streamlit */
+    header[data-testid="stHeader"] {
+        background: transparent !important;
     }
 
-    /* إجبار لون العناوين والنصوص */
+    /* 3. تنسيق العناوين والنصوص الرئيسية */
     h1, h2, h3, h4, span, label, p {
-        color: #f3f4f6 !important;
+        color: #f0f6fc !important;
     }
 
-    /* تنسيق التبويبات العلويّة */
+    /* 4. تنسيق التبويبات العلويّة */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 6px;
+        gap: 8px;
         justify-content: center;
-        background-color: #111318 !important;
+        background-color: #161b22 !important;
         padding: 6px;
         border-radius: 10px;
-        border: 1px solid #1f242d !important;
+        border: 1px solid #30363d !important;
         flex-wrap: wrap !important;
     }
     .stTabs [data-baseweb="tab"] {
         height: auto !important;
         min-height: 40px;
-        white-space: normal !important;
-        background-color: #161a23 !important;
+        background-color: #21262d !important;
         border-radius: 8px;
-        color: #d1d5db !important;
+        color: #c9d1d9 !important;
         font-weight: 600;
         font-size: 13px;
-        border: 1px solid #28303e !important;
-        padding: 6px 12px !important;
+        border: 1px solid #30363d !important;
+        padding: 8px 16px !important;
     }
     .stTabs [aria-selected="true"] {
         background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
@@ -54,7 +57,7 @@ st.markdown("""
         border: 1px solid #f59e0b !important;
     }
 
-    /* بطاقات الأداء المالي */
+    /* 5. بطاقات الأداء المالي */
     [data-testid="stMetricValue"] {
         font-size: 26px !important;
         font-weight: 800 !important;
@@ -62,26 +65,12 @@ st.markdown("""
     }
     [data-testid="stMetricLabel"] {
         font-size: 12px !important;
-        color: #9ca3af !important;
+        color: #8b949e !important;
         font-weight: 600 !important;
     }
 
-    /* إصلاح لون وشكل الجداول بالكامل المباشر (استهداف Glide Data Grid) */
-    div[data-testid="stDataFrame"] {
-        background-color: #111318 !important;
-        border: 1px solid #1f242d !important;
-        border-radius: 10px !important;
-        padding: 4px;
-    }
-    
-    /* جعل ألوان الجدول داكنة والنصوص بيضاء شديدة التباين */
-    div[data-testid="stDataFrame"] * {
-        background-color: #111318 !important;
-        color: #ffffff !important;
-    }
-
     hr {
-        border-color: #1f2937 !important;
+        border-color: #30363d !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -134,100 +123,4 @@ def render_account_dashboard(account_name, acc_data):
             col1, col2, col3 = st.columns(3)
             col1.metric("إجمالي المحفظة", f"${equity:,.2f}")
             col2.metric("السيولة المتاحة", f"${cash:,.2f}")
-            col3.metric("القوة الشرائية", f"${buying_power:,.2f}")
-            
-            st.divider()
-            
-            st.subheader("📈 المراكز والصفقات النشطة")
-            positions = api.list_positions()
-            
-            if positions:
-                pos_list = []
-                for p in positions:
-                    unrealized_pl = float(p.unrealized_pl)
-                    unrealized_plpc = float(p.unrealized_plpc) * 100
-                    
-                    pos_list.append({
-                        "الرمز": p.symbol,
-                        "الكمية": int(float(p.qty)),
-                        "سعر الدخول": f"${float(p.avg_entry_price):.2f}",
-                        "السعر اللحظي": f"${float(p.current_price):.2f}",
-                        "الربح/الخسارة ($)": f"${unrealized_pl:+.2f}",
-                        "الربح/الخسارة (%)": f"{unrealized_plpc:+.2f}%"
-                    })
-                
-                df_pos = pd.DataFrame(pos_list)
-                st.dataframe(df_pos, use_container_width=True)
-            else:
-                st.info("لا توجد مراكز مفتوحة حالياً لهذا الحساب.")
-                
-            st.divider()
-            
-            st.subheader("📑 سجل العمليات والتنفيذ (CSV)")
-            log_file = acc_data["LOG_FILE"]
-            if os.path.exists(log_file):
-                df_logs = pd.read_csv(log_file)
-                st.dataframe(df_logs.tail(20), use_container_width=True)
-            else:
-                st.warning(f"لم يتم تسجيل صفقات في الملف {log_file} حتى الآن.")
-                
-        except Exception as e:
-            st.error(f"خطأ في الاتصال: {e}")
-    else:
-        st.error("تعذر الاتصال بخوادم التداول.")
-
-# --- التبويبات العلويّة ---
-tabs = st.tabs([
-    "🏛️ النظرة الشاملة",
-    "🪙 الحساب الأول ($1000)",
-    "💎 الحساب الثاني - bot2 ($2000)",
-    "👑 الحساب الثاني - bot_account2 ($2000)"
-])
-
-# 1️⃣ الملخص الشامل
-with tabs[0]:
-    st.header("🏛️ الملخص المالي الموحد")
-    total_combined_equity = 0.0
-    summary_data = []
-    
-    for name, config in ACCOUNTS.items():
-        api = get_alpaca_client(config)
-        eq, cash, pos_count = 0.0, 0.0, 0
-        if api:
-            try:
-                acc = api.get_account()
-                eq = float(acc.equity)
-                cash = float(acc.cash)
-                positions = api.list_positions()
-                pos_count = len(positions)
-                total_combined_equity += eq
-            except:
-                pass
-        summary_data.append({
-            "اسم الحساب": name,
-            "إجمالي المحفظة": f"${eq:,.2f}",
-            "السيولة": f"${cash:,.2f}",
-            "الصفقات المفتوحة": pos_count
-        })
-    
-    st.metric("إجمالي المحافظ المدارة", f"${total_combined_equity:,.2f}")
-    st.divider()
-    
-    df_summary = pd.DataFrame(summary_data)
-    st.dataframe(df_summary, use_container_width=True)
-
-# 2️⃣ الحساب الأول
-with tabs[1]:
-    render_account_dashboard("الحساب الأول ($1000)", ACCOUNTS["الحساب الأول ($1000)"])
-
-# 3️⃣ الحساب الثاني bot2
-with tabs[2]:
-    render_account_dashboard("الحساب الثاني - bot2 ($2000)", ACCOUNTS["الحساب الثاني - bot2 ($2000)"])
-
-# 4️⃣ الحساب الثاني bot_account2
-with tabs[3]:
-    render_account_dashboard("الحساب الثاني - bot_account2 ($2000)", ACCOUNTS["الحساب الثاني - bot_account2 ($2000)"])
-
-# --- التحديث اللحظي كل 10 ثوانٍ ---
-time.sleep(10)
-st.rerun()
+            col3.
