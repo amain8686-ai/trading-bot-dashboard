@@ -12,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- تنسيق CSS المتطور والمستقر للمنصة ---
+# --- تنسيق CSS المحدث (مع اعتماد اللون الأحمر الداكن الفاخر للثيم) ---
 st.markdown("""
     <style>
     /* خلفية التطبيق الداكنة بالكامل */
@@ -50,17 +50,19 @@ st.markdown("""
         border: 1px solid #30363d !important;
         padding: 8px 16px !important;
     }
+    /* اعتماد اللون الأحمر الداكن الفاخر للتبويب النشط */
     .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+        background: linear-gradient(135deg, #7f1d1d 0%, #581c87 100%) !important;
+        background-color: #7f1d1d !important;
         color: #ffffff !important;
-        border: 1px solid #f59e0b !important;
+        border: 1px solid #991b1b !important;
     }
 
-    /* بطاقات الأداء المالي */
+    /* بطاقات الأداء المالي (لون مميز ومتناسق مع الأحمر الداكن) */
     [data-testid="stMetricValue"] {
         font-size: 26px !important;
         font-weight: 800 !important;
-        color: #f59e0b !important;
+        color: #fca5a5 !important;
     }
     [data-testid="stMetricLabel"] {
         font-size: 12px !important;
@@ -74,7 +76,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("⚜️ منصة إدارة المحافظ التجريبية")
+st.title("⚜️ منصة إدارة المحافظ الآلية")
 st.caption("مركز التحكم والرقابة اللحظية على بوتات التداول")
 
 # --- تعريف بيانات الحسابات ومفاتيح الربط ---
