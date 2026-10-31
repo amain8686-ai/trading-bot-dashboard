@@ -169,4 +169,53 @@ tabs = st.tabs([
     "🏛️ النظرة الشاملة",
     "🪙 الحساب الأول ($1000)",
     "💎 الحساب الثاني - bot2 ($2000)",
-    "👑 الحساب الثاني - bot_
+    "👑 الحساب الثاني - bot_account2 ($2000)"
+])
+
+# 1️⃣ الملخص الشامل
+with tabs[0]:
+    st.header("🏛️ الملخص المالي الموحد")
+    total_combined_equity = 0.0
+    summary_data = []
+    
+    for name, config in ACCOUNTS.items():
+        api = get_alpaca_client(config)
+        eq, cash, pos_count = 0.0, 0.0, 0
+        if api:
+            try:
+                acc = api.get_account()
+                eq = float(acc.equity)
+                cash = float(acc.cash)
+                positions = api.list_positions()
+                pos_count = len(positions)
+                total_combined_equity += eq
+            except:
+                pass
+        summary_data.append({
+            "اسم الحساب": name,
+            "إجمالي المحفظة": f"${eq:,.2f}",
+            "السيولة": f"${cash:,.2f}",
+            "الصفقات المفتوحة": pos_count
+        })
+    
+    st.metric("إجمالي المحافظ المدارة", f"${total_combined_equity:,.2f}")
+    st.divider()
+    
+    df_summary = pd.DataFrame(summary_data)
+    st.dataframe(df_summary, use_container_width=True)
+
+# 2️⃣ الحساب الأول
+with tabs[1]:
+    render_account_dashboard("الحساب الأول ($1000)", ACCOUNTS["الحساب الأول ($1000)"])
+
+# 3️⃣ الحساب الثاني bot2
+with tabs[2]:
+    render_account_dashboard("الحساب الثاني - bot2 ($2000)", ACCOUNTS["الحساب الثاني - bot2 ($2000)"])
+
+# 4️⃣ الحساب الثاني bot_account2
+with tabs[3]:
+    render_account_dashboard("الحساب الثاني - bot_account2 ($2000)", ACCOUNTS["الحساب الثاني - bot_account2 ($2000)"])
+
+# --- التحديث اللحظي كل 10 ثوانٍ ---
+time.sleep(10)
+st.rerun()
