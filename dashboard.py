@@ -12,24 +12,18 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- تنسيق CSS المحدث (مع اعتماد اللون الأحمر الداكن الفاخر للثيم) ---
+# --- تنسيق CSS الثابت ---
 st.markdown("""
     <style>
-    /* خلفية التطبيق الداكنة بالكامل */
     .stApp, header[data-testid="stHeader"] {
         background-color: #0d1117 !important;
     }
-    
     header[data-testid="stHeader"] {
         background: transparent !important;
     }
-
-    /* العناوين والنصوص */
     h1, h2, h3, h4, span, label, p {
         color: #f0f6fc !important;
     }
-
-    /* تنسيق التبويبات العلويّة المتجاوبة مع الجوال */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
         justify-content: center;
@@ -50,15 +44,12 @@ st.markdown("""
         border: 1px solid #30363d !important;
         padding: 8px 16px !important;
     }
-    /* اعتماد اللون الأحمر الداكن الفاخر للتبويب النشط */
     .stTabs [aria-selected="true"] {
         background: linear-gradient(135deg, #7f1d1d 0%, #581c87 100%) !important;
         background-color: #7f1d1d !important;
         color: #ffffff !important;
         border: 1px solid #991b1b !important;
     }
-
-    /* بطاقات الأداء المالي (لون مميز ومتناسق مع الأحمر الداكن) */
     [data-testid="stMetricValue"] {
         font-size: 26px !important;
         font-weight: 800 !important;
@@ -69,7 +60,6 @@ st.markdown("""
         color: #8b949e !important;
         font-weight: 600 !important;
     }
-
     hr {
         border-color: #30363d !important;
     }
@@ -112,6 +102,15 @@ def get_alpaca_client(acc_config):
     except Exception:
         return None
 
+# دالة لتلوين أعمدة الأرباح والخسائر بالأخضر والأحمر بأمان تام
+def color_pnl(val):
+    if isinstance(val, (int, float)):
+        if val > 0:
+            return 'color: #10b981; font-weight: bold;' # أخضر للربح
+        elif val < 0:
+            return 'color: #ef4444; font-weight: bold;' # أحمر للخسارة
+    return 'color: #c9d1d9;'
+
 def render_account_dashboard(account_name, acc_data):
     api = get_alpaca_client(acc_data)
     if api:
@@ -140,14 +139,25 @@ def render_account_dashboard(account_name, acc_data):
                     pos_list.append({
                         "الرمز": p.symbol,
                         "الكمية": int(float(p.qty)),
-                        "سعر الدخول": f"${float(p.avg_entry_price):.2f}",
-                        "السعر اللحظي": f"${float(p.current_price):.2f}",
-                        "الربح/الخسارة ($)": f"${unrealized_pl:+.2f}",
-                        "الربح/الخسارة (%)": f"{unrealized_plpc:+.2f}%"
+                        "سعر الدخول": float(p.avg_entry_price),
+                        "السعر اللحظي": float(p.current_price),
+                        "الربح/الخسارة ($)": unrealized_pl,
+                        "الربح/الخسارة (%)": unrealized_plpc
                     })
                 
                 df_pos = pd.DataFrame(pos_list)
-                st.dataframe(df_pos, use_container_width=True)
+                
+                # تطبيق التنسيق اللوني والأرقام بدقة
+                styled_df = df_pos.style.map(
+                    color_pnl, subset=["الربح/الخسارة ($)", "الربح/الخسارة (%)"]
+                ).format({
+                    "سعر الدخول": "${:.2f}",
+                    "السعر اللحظي": "${:.2f}",
+                    "الربح/الخسارة ($)": "${:+.2f}",
+                    "الربح/الخسارة (%)": "{:+.2f}%"
+                })
+                
+                st.dataframe(styled_df, use_container_width=True)
             else:
                 st.info("لا توجد مراكز مفتوحة حالياً لهذا الحساب.")
                 
