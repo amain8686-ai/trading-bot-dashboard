@@ -120,22 +120,34 @@ def render_account_dashboard(account_name, acc_data):
             cash = float(account_info.cash)
             buying_power = float(account_info.buying_power)
             
-            col1, col2, col3 = st.columns(3)
+            positions = api.list_positions()
+            
+            # حساب إجمالي الربح/الخسارة اللحظي من الصفقات النشطة
+            total_unrealized_pl = 0.0
+            if positions:
+                for p in positions:
+                    total_unrealized_pl += float(p.unrealized_pl)
+
+            # عرض 4 أعمدة للمؤشرات (تمت إضافة مجموع الربح)
+            col1, col2, col3, col4 = st.columns(4)
             col1.metric("إجمالي المحفظة", f"${equity:,.2f}")
             col2.metric("السيولة المتاحة", f"${cash:,.2f}")
             col3.metric("القوة الشرائية", f"${buying_power:,.2f}")
             
+            # تلوين قيمة مجموع الربح أخضر أو أحمر بناءً على القيمة
+            pl_color_prefix = "+" if total_unrealized_pl >= 0 else ""
+            col4.metric("مجموع الربح/الخسارة", f"{pl_color_prefix}${total_unrealized_pl:,.2f}")
+            
             st.divider()
             
             st.subheader("📈 المراكز والصفقات النشطة")
-            positions = api.list_positions()
             
             if positions:
                 pos_list = []
                 for p in positions:
                     qty = int(float(p.qty))
                     entry_price = float(p.avg_entry_price)
-                    total_cost = qty * entry_price  # حساب مجموع الشراء (الكمية × سعر الدخول)
+                    total_cost = qty * entry_price  # مجموع الشراء
                     
                     unrealized_pl = float(p.unrealized_pl)
                     unrealized_plpc = float(p.unrealized_plpc) * 100
@@ -152,7 +164,6 @@ def render_account_dashboard(account_name, acc_data):
                 
                 df_pos = pd.DataFrame(pos_list)
                 
-                # تطبيق التنسيق والتلوين على الجداول
                 styled_df = df_pos.style.map(
                     color_pnl, subset=["الربح/الخسارة ($)", "الربح/الخسارة (%)"]
                 ).format({
@@ -194,11 +205,12 @@ tabs = st.tabs([
 with tabs[0]:
     st.header("🏛️ الملخص المالي الموحد")
     total_combined_equity = 0.0
+    total_combined_pl = 0.0
     summary_data = []
     
     for name, config in ACCOUNTS.items():
         api = get_alpaca_client(config)
-        eq, cash, pos_count = 0.0, 0.0, 0
+        eq, cash, pos_count, acc_pl = 0.0, 0.0, 0, 0.0
         if api:
             try:
                 acc = api.get_account()
@@ -206,17 +218,24 @@ with tabs[0]:
                 cash = float(acc.cash)
                 positions = api.list_positions()
                 pos_count = len(positions)
+                for p in positions:
+                    acc_pl += float(p.unrealized_pl)
                 total_combined_equity += eq
+                total_combined_pl += acc_pl
             except:
                 pass
         summary_data.append({
             "اسم الحساب": name,
             "إجمالي المحفظة": f"${eq:,.2f}",
             "السيولة": f"${cash:,.2f}",
+            "مجموع الربح/الخسارة": f"${acc_pl:+,.2f}",
             "الصفقات المفتوحة": pos_count
         })
     
-    st.metric("إجمالي المحافظ المدارة", f"${total_combined_equity:,.2f}")
+    col_s1, col_s2 = st.columns(2)
+    col_s1.metric("إجمالي المحافظ المدارة", f"${total_combined_equity:,.2f}")
+    col_s2.metric("إجمالي الأرباح/الخسائر الموحدة", f"${total_combined_pl:+,.2f}")
+    
     st.divider()
     
     df_summary = pd.DataFrame(summary_data)
