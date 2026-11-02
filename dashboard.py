@@ -7,7 +7,7 @@ import time
 # --- إعدادات الصفحة الأساسية ---
 st.set_page_config(
     page_title="Terminal | Enterprise Trading",
-    page_icon="⚜️",
+    page_icon="💰",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -66,7 +66,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("⚜️ منصة إدارة المحافظ الآلية")
+st.title("💰 منصة إدارة المحافظ الآلية")
 st.caption("مركز التحكم والرقابة اللحظية على بوتات التداول")
 
 # --- تعريف بيانات الحسابات ومفاتيح الربط ---
