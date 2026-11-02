@@ -102,13 +102,13 @@ def get_alpaca_client(acc_config):
     except Exception:
         return None
 
-# دالة لتلوين أعمدة الأرباح والخسائر بالأخضر والأحمر بأمان تام
+# دالة لتلوين أعمدة الأرباح والخسائر بالأخضر والأحمر
 def color_pnl(val):
     if isinstance(val, (int, float)):
         if val > 0:
-            return 'color: #10b981; font-weight: bold;' # أخضر للربح
+            return 'color: #10b981; font-weight: bold;'
         elif val < 0:
-            return 'color: #ef4444; font-weight: bold;' # أحمر للخسارة
+            return 'color: #ef4444; font-weight: bold;'
     return 'color: #c9d1d9;'
 
 def render_account_dashboard(account_name, acc_data):
@@ -133,13 +133,18 @@ def render_account_dashboard(account_name, acc_data):
             if positions:
                 pos_list = []
                 for p in positions:
+                    qty = int(float(p.qty))
+                    entry_price = float(p.avg_entry_price)
+                    total_cost = qty * entry_price  # حساب مجموع الشراء (الكمية × سعر الدخول)
+                    
                     unrealized_pl = float(p.unrealized_pl)
                     unrealized_plpc = float(p.unrealized_plpc) * 100
                     
                     pos_list.append({
                         "الرمز": p.symbol,
-                        "الكمية": int(float(p.qty)),
-                        "سعر الدخول": float(p.avg_entry_price),
+                        "الكمية": qty,
+                        "سعر الدخول": entry_price,
+                        "مجموع الشراء": total_cost,
                         "السعر اللحظي": float(p.current_price),
                         "الربح/الخسارة ($)": unrealized_pl,
                         "الربح/الخسارة (%)": unrealized_plpc
@@ -147,11 +152,12 @@ def render_account_dashboard(account_name, acc_data):
                 
                 df_pos = pd.DataFrame(pos_list)
                 
-                # تطبيق التنسيق اللوني والأرقام بدقة
+                # تطبيق التنسيق والتلوين على الجداول
                 styled_df = df_pos.style.map(
                     color_pnl, subset=["الربح/الخسارة ($)", "الربح/الخسارة (%)"]
                 ).format({
                     "سعر الدخول": "${:.2f}",
+                    "مجموع الشراء": "${:,.2f}",
                     "السعر اللحظي": "${:.2f}",
                     "الربح/الخسارة ($)": "${:+.2f}",
                     "الربح/الخسارة (%)": "{:+.2f}%"
