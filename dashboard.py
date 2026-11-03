@@ -74,19 +74,19 @@ ACCOUNTS = {
         "API_KEY": "PKL5ENZ2JPZ5M4JVN7JUNWJP52",
         "SECRET_KEY": "3QWnGzU2vHA9Q8tWSMemktbJwuviZT31WaMgNHQZc7SQ",
         "BASE_URL": "https://paper-api.alpaca.markets",
-"SHEET_CSV_URL": "https://docs.google.com/spreadsheets/d/1I4-0FD8XminaU97fUux6-CWbbayP5dYQ_6mfWOAzskc/export?format=csv"
+"SHEET_CSV_URL": "https://docs.google.com/spreadsheets/d/10X3odnaYKdOmND2qn5EKsbFktrlOPaZdcNx0XLzxY_M/export?format=csv"
     },
     "الحساب الثاني - bot2 ($2000)": {
         "API_KEY": "PK245YWODY3OJCL55MFTKKPQU7",
         "SECRET_KEY": "Fk8tgx7oVWbxr1eDDeZPWigC8WkembXsuim9AhSsBM7z",
         "BASE_URL": "https://paper-api.alpaca.markets",
-"SHEET_CSV_URL": "https://docs.google.com/spreadsheets/d/1G0sfoeHFzi9OlEKkMdDJDxCyr2ibofOD5pceAjYHq1c/export?format=csv"
+"SHEET_CSV_URL": "https://docs.google.com/spreadsheets/d/19vWt12gBetvjr5lfo6JnJ-m4-IoXDQ7bWFP0VXUc4AA/export?format=csv"
     },
     "الحساب الثاني - bot_account2 ($2000)": {
         "API_KEY": "PKKI27AVLWBEHLXKQNFBQEKR5Q",
         "SECRET_KEY": "CZYEZUZ6cNp1kAvUaHmjJZRDwqeQwb5Aama4iyBUGx82",
         "BASE_URL": "https://paper-api.alpaca.markets",
-        "SHEET_CSV_URL": "https://docs.google.com/spreadsheets/d/1aTpBz7qNpd0lle-suwjWtkUg3RkFFceeNvTAlGsJ5Sw/export?format=csv"
+        "SHEET_CSV_URL": "https://docs.google.com/spreadsheets/d/1lmldqArXg8G-JWqoYSkWll1DBq-D_c2H4Fs89dB5ScI/export?format=csv"
     }
 }
 
