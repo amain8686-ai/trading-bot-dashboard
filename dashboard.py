@@ -71,20 +71,20 @@ st.caption("مركز التحكم والرقابة اللحظية على بوت�
 # --- تعريف بيانات الحسابات ومفاتيح الربط وجداول السجلات السحابية ---
 ACCOUNTS = {
     "الحساب الأول ($1000)": {
-        "API_KEY": "PKOEYQXJQFVILWXK6C4V5LXSXW",
-        "SECRET_KEY": "A6zB4DC1idneqFUke5rEPp2hEAHYCDQCj8hjNmkS2zGf",
+        "API_KEY": "PKL5ENZ2JPZ5M4JVN7JUNWJP52",
+        "SECRET_KEY": "3QWnGzU2vHA9Q8tWSMemktbJwuviZT31WaMgNHQZc7SQ",
         "BASE_URL": "https://paper-api.alpaca.markets",
 "SHEET_CSV_URL": "https://docs.google.com/spreadsheets/d/1I4-0FD8XminaU97fUux6-CWbbayP5dYQ_6mfWOAzskc/export?format=csv"
     },
     "الحساب الثاني - bot2 ($2000)": {
-        "API_KEY": "PKGW26NSZJDLAMW2M7VSHJYMSL",
-        "SECRET_KEY": "DpyM3KjPxBr4NumicNKVs7YczJuwZiudDMAxP84NCsTP",
+        "API_KEY": "PK245YWODY3OJCL55MFTKKPQU7",
+        "SECRET_KEY": "Fk8tgx7oVWbxr1eDDeZPWigC8WkembXsuim9AhSsBM7z",
         "BASE_URL": "https://paper-api.alpaca.markets",
 "SHEET_CSV_URL": "https://docs.google.com/spreadsheets/d/1G0sfoeHFzi9OlEKkMdDJDxCyr2ibofOD5pceAjYHq1c/export?format=csv"
     },
     "الحساب الثاني - bot_account2 ($2000)": {
-        "API_KEY": "PKF5ARLBNCOULM3IMMSUZE4CIG",
-        "SECRET_KEY": "CYdhvBVFGh6gKh3DAWJM7X8KgujxD7PjptCEa43MPc7k",
+        "API_KEY": "PKKI27AVLWBEHLXKQNFBQEKR5Q",
+        "SECRET_KEY": "CZYEZUZ6cNp1kAvUaHmjJZRDwqeQwb5Aama4iyBUGx82",
         "BASE_URL": "https://paper-api.alpaca.markets",
         "SHEET_CSV_URL": "https://docs.google.com/spreadsheets/d/1aTpBz7qNpd0lle-suwjWtkUg3RkFFceeNvTAlGsJ5Sw/export?format=csv"
     }
