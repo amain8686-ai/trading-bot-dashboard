@@ -1,13 +1,12 @@
 import streamlit as st
 import pandas as pd
 import alpaca_trade_api as tradeapi
-import os
 import time
 
 # --- إعدادات الصفحة الأساسية ---
 st.set_page_config(
     page_title="Terminal | Enterprise Trading",
-    page_icon="💰",
+    page_icon="⚜️",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -66,28 +65,28 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("💰 منصة إدارة المحافظ الآلية")
+st.title("⚜️ منصة إدارة المحافظ الآلية")
 st.caption("مركز التحكم والرقابة اللحظية على بوتات التداول")
 
-# --- تعريف بيانات الحسابات ومفاتيح الربط ---
+# --- تعريف بيانات الحسابات ومفاتيح الربط وجداول السجلات السحابية ---
 ACCOUNTS = {
     "الحساب الأول ($1000)": {
-        "API_KEY": "PKL5ENZ2JPZ5M4JVN7JUNWJP52",
-        "SECRET_KEY": "3QWnGzU2vHA9Q8tWSMemktbJwuviZT31WaMgNHQZc7SQ",
+        "API_KEY": "PKOEYQXJQFVILWXK6C4V5LXSXW",
+        "SECRET_KEY": "A6zB4DC1idneqFUke5rEPp2hEAHYCDQCj8hjNmkS2zGf",
         "BASE_URL": "https://paper-api.alpaca.markets",
-        "LOG_FILE": "trades_history_bot1.csv"
+"SHEET_CSV_URL": "https://docs.google.com/spreadsheets/d/1I4-0FD8XminaU97fUux6-CWbbayP5dYQ_6mfWOAzskc/export?format=csv"
     },
     "الحساب الثاني - bot2 ($2000)": {
-        "API_KEY": "PK245YWODY3OJCL55MFTKKPQU7",
-        "SECRET_KEY": "Fk8tgx7oVWbxr1eDDeZPWigC8WkembXsuim9AhSsBM7z",
+        "API_KEY": "PKGW26NSZJDLAMW2M7VSHJYMSL",
+        "SECRET_KEY": "DpyM3KjPxBr4NumicNKVs7YczJuwZiudDMAxP84NCsTP",
         "BASE_URL": "https://paper-api.alpaca.markets",
-        "LOG_FILE": "trades_history_bot2.csv"
+"SHEET_CSV_URL": "https://docs.google.com/spreadsheets/d/1G0sfoeHFzi9OlEKkMdDJDxCyr2ibofOD5pceAjYHq1c/export?format=csv"
     },
     "الحساب الثاني - bot_account2 ($2000)": {
-        "API_KEY": "PKKI27AVLWBEHLXKQNFBQEKR5Q",
-        "SECRET_KEY": "CZYEZUZ6cNp1kAvUaHmjJZRDwqeQwb5Aama4iyBUGx82",
+        "API_KEY": "PKF5ARLBNCOULM3IMMSUZE4CIG",
+        "SECRET_KEY": "CYdhvBVFGh6gKh3DAWJM7X8KgujxD7PjptCEa43MPc7k",
         "BASE_URL": "https://paper-api.alpaca.markets",
-        "LOG_FILE": "trades_history_account2.csv"
+        "SHEET_CSV_URL": "https://docs.google.com/spreadsheets/d/1aTpBz7qNpd0lle-suwjWtkUg3RkFFceeNvTAlGsJ5Sw/export?format=csv"
     }
 }
 
@@ -102,7 +101,6 @@ def get_alpaca_client(acc_config):
     except Exception:
         return None
 
-# دالة لتلوين أعمدة الأرباح والخسائر بالأخضر والأحمر
 def color_pnl(val):
     if isinstance(val, (int, float)):
         if val > 0:
@@ -122,33 +120,28 @@ def render_account_dashboard(account_name, acc_data):
             
             positions = api.list_positions()
             
-            # حساب إجمالي الربح/الخسارة اللحظي من الصفقات النشطة
             total_unrealized_pl = 0.0
             if positions:
                 for p in positions:
                     total_unrealized_pl += float(p.unrealized_pl)
 
-            # عرض 4 أعمدة للمؤشرات (تمت إضافة مجموع الربح)
             col1, col2, col3, col4 = st.columns(4)
             col1.metric("إجمالي المحفظة", f"${equity:,.2f}")
             col2.metric("السيولة المتاحة", f"${cash:,.2f}")
             col3.metric("القوة الشرائية", f"${buying_power:,.2f}")
             
-            # تلوين قيمة مجموع الربح أخضر أو أحمر بناءً على القيمة
             pl_color_prefix = "+" if total_unrealized_pl >= 0 else ""
             col4.metric("مجموع الربح/الخسارة", f"{pl_color_prefix}${total_unrealized_pl:,.2f}")
             
             st.divider()
             
             st.subheader("📈 المراكز والصفقات النشطة")
-            
             if positions:
                 pos_list = []
                 for p in positions:
                     qty = int(float(p.qty))
                     entry_price = float(p.avg_entry_price)
-                    total_cost = qty * entry_price  # مجموع الشراء
-                    
+                    total_cost = qty * entry_price
                     unrealized_pl = float(p.unrealized_pl)
                     unrealized_plpc = float(p.unrealized_plpc) * 100
                     
@@ -163,7 +156,6 @@ def render_account_dashboard(account_name, acc_data):
                     })
                 
                 df_pos = pd.DataFrame(pos_list)
-                
                 styled_df = df_pos.style.map(
                     color_pnl, subset=["الربح/الخسارة ($)", "الربح/الخسارة (%)"]
                 ).format({
@@ -173,25 +165,27 @@ def render_account_dashboard(account_name, acc_data):
                     "الربح/الخسارة ($)": "${:+.2f}",
                     "الربح/الخسارة (%)": "{:+.2f}%"
                 })
-                
                 st.dataframe(styled_df, use_container_width=True)
             else:
                 st.info("لا توجد مراكز مفتوحة حالياً لهذا الحساب.")
                 
             st.divider()
             
-            st.subheader("📑 سجل العمليات والتنفيذ (CSV)")
-            log_file = acc_data["LOG_FILE"]
-            if os.path.exists(log_file):
-                df_logs = pd.read_csv(log_file)
-                st.dataframe(df_logs.tail(20), use_container_width=True)
-            else:
-                st.warning(f"لم يتم تسجيل صفقات في الملف {log_file} حتى الآن.")
+            st.subheader("📑 سجل العمليات والتنفيذ (من Google Sheets)")
+            sheet_url = acc_data["SHEET_CSV_URL"]
+            try:
+                df_logs = pd.read_csv(sheet_url)
+                if not df_logs.empty:
+                    st.dataframe(df_logs.tail(20), use_container_width=True)
+                else:
+                    st.warning("ملف جوجل شيت فارغ حالياً.")
+            except Exception as e:
+                st.warning("تعذر قراءة بيانات جدول جوجل شيت. تأكدي من جعل الرابط متاحاً للعامة.")
                 
         except Exception as e:
-            st.error(f"خطأ في الاتصال: {e}")
+            st.error(f"حدث خطأ أثناء الاتصال: {e}")
     else:
-        st.error("تعذر الاتصال بخوادم التداول.")
+        st.error("فشل الاتصال بمنصة التداول لهذا الحساب.")
 
 # --- التبويبات العلويّة ---
 tabs = st.tabs([
