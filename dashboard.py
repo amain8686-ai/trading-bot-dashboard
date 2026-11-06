@@ -6,23 +6,29 @@ import time
 # --- إعدادات الصفحة الأساسية ---
 st.set_page_config(
     page_title="Terminal | Enterprise Trading",
-    page_icon="⚜️",
+    page_icon="💰",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# --- تنسيق CSS الثابت ---
+# --- تنسيق CSS متطور لمنع تحول الجدول للأبيض في الجوال وإجبار الثيم الداكن ---
 st.markdown("""
     <style>
-    .stApp, header[data-testid="stHeader"] {
+    /* خلفية التطبيق العامة والهيدر */
+    .stApp, header[data-testid="stHeader"], [data-testid="stToolbar"] {
         background-color: #0d1117 !important;
     }
+    
     header[data-testid="stHeader"] {
         background: transparent !important;
     }
-    h1, h2, h3, h4, span, label, p {
+
+    /* تثبيت ألوان النصوص والعناوين لتبقى بيضاء وواضحة */
+    h1, h2, h3, h4, span, label, p, div {
         color: #f0f6fc !important;
     }
+
+    /* تنسيق التبويبات العلويّة المتجاوبة مع الجوال */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
         justify-content: center;
@@ -49,6 +55,8 @@ st.markdown("""
         color: #ffffff !important;
         border: 1px solid #991b1b !important;
     }
+
+    /* بطاقات الأداء المالي */
     [data-testid="stMetricValue"] {
         font-size: 26px !important;
         font-weight: 800 !important;
@@ -59,13 +67,26 @@ st.markdown("""
         color: #8b949e !important;
         font-weight: 600 !important;
     }
+
+    /* إجبار جداول البيانات على الظهور بالثيم الداكن نهائياً في الجوال والكمبيوتر */
+    [data-testid="stDataFrame"] {
+        background-color: #161b22 !important;
+        border: 1px solid #30363d !important;
+        border-radius: 8px;
+        padding: 4px;
+    }
+    
+    div[data-baseweb="card"] {
+        background-color: #161b22 !important;
+    }
+
     hr {
         border-color: #30363d !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
-st.title("⚜️ منصة إدارة المحافظ الآلية")
+st.title("💰 منصة إدارة المحافظ الآلية")
 st.caption("مركز التحكم والرقابة اللحظية على بوتات التداول")
 
 # --- تعريف بيانات الحسابات ومفاتيح الربط وجداول السجلات السحابية ---
@@ -74,19 +95,19 @@ ACCOUNTS = {
         "API_KEY": "PKL5ENZ2JPZ5M4JVN7JUNWJP52",
         "SECRET_KEY": "3QWnGzU2vHA9Q8tWSMemktbJwuviZT31WaMgNHQZc7SQ",
         "BASE_URL": "https://paper-api.alpaca.markets",
-"SHEET_CSV_URL": "https://docs.google.com/spreadsheets/d/10X3odnaYKdOmND2qn5EKsbFktrlOPaZdcNx0XLzxY_M/export?format=csv"
+        "SHEET_CSV_URL": "https://docs.google.com/spreadsheets/d/1I4-0FD8XminaU97fUux6-CWbbayP5dYQ_6mfWOAzskc/export?format=csv"
     },
     "الحساب الثاني - bot2 ($2000)": {
         "API_KEY": "PK245YWODY3OJCL55MFTKKPQU7",
         "SECRET_KEY": "Fk8tgx7oVWbxr1eDDeZPWigC8WkembXsuim9AhSsBM7z",
         "BASE_URL": "https://paper-api.alpaca.markets",
-"SHEET_CSV_URL": "https://docs.google.com/spreadsheets/d/19vWt12gBetvjr5lfo6JnJ-m4-IoXDQ7bWFP0VXUc4AA/export?format=csv"
+        "SHEET_CSV_URL": "https://docs.google.com/spreadsheets/d/1G0sfoeHFzi9OlEKkMdDJDxCyr2ibofOD5pceAjYHq1c/export?format=csv"
     },
     "الحساب الثاني - bot_account2 ($2000)": {
         "API_KEY": "PKKI27AVLWBEHLXKQNFBQEKR5Q",
         "SECRET_KEY": "CZYEZUZ6cNp1kAvUaHmjJZRDwqeQwb5Aama4iyBUGx82",
         "BASE_URL": "https://paper-api.alpaca.markets",
-        "SHEET_CSV_URL": "https://docs.google.com/spreadsheets/d/1lmldqArXg8G-JWqoYSkWll1DBq-D_c2H4Fs89dB5ScI/export?format=csv"
+        "SHEET_CSV_URL": "https://docs.google.com/spreadsheets/d/1aTpBz7qNpd0lle-suwjWtkUg3RkFFceeNvTAlGsJ5Sw/export?format=csv"
     }
 }
 
@@ -180,7 +201,7 @@ def render_account_dashboard(account_name, acc_data):
                 else:
                     st.warning("ملف جوجل شيت فارغ حالياً.")
             except Exception as e:
-                st.warning("تعذر قراءة بيانات جدول جوجل شيت. تأكدي من جعل الرابط متاحاً للعامة.")
+                st.warning("تعذر قراءة بيانات جدول جوجل شيت. تأكدي من جعل الرابط متاحاً للعامة بصلاحية عارض.")
                 
         except Exception as e:
             st.error(f"حدث خطأ أثناء الاتصال: {e}")
@@ -190,9 +211,9 @@ def render_account_dashboard(account_name, acc_data):
 # --- التبويبات العلويّة ---
 tabs = st.tabs([
     "🏛️ النظرة الشاملة",
-    "🪙 الحساب الأول ($1000)",
-    "💎 الحساب الثاني - bot2 ($2000)",
-    "👑 الحساب الثاني - bot_account2 ($2000)"
+    "💵 الحساب الأول ($1000)",
+    "💶 الحساب الثاني - bot2 ($2000)",
+    "💷 الحساب الثاني - bot_account2 ($2000)"
 ])
 
 # 1️⃣ الملخص الشامل
