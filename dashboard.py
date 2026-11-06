@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- تنسيق CSS المطور والمجبر للثيم الداكن على الجوال والكمبيوتر ---
+# --- تنسيق CSS النظيف والثابت بدون تضليل أو مشاكل في الجوال ---
 st.markdown("""
     <style>
     /* خلفية التطبيق العامة والهيدر */
@@ -23,8 +23,8 @@ st.markdown("""
         background: transparent !important;
     }
 
-    /* تثبيت ألوان النصوص والعناوين لتبقى بيضاء وواضحة */
-    h1, h2, h3, h4, span, label, p, div {
+    /* ألوان العناوين والنصوص الأساسية بدقة وبدون تضليل عناصر */
+    h1, h2, h3, h4, span, label, p {
         color: #f0f6fc !important;
     }
 
@@ -68,17 +68,11 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* إجبار جداول البيانات و عناصر الـ Grid على الثيم الداكن نهائياً في الجوال والكمبيوتر */
+    /* تنسيق الجداول بشكل نظيف وداكن متوافق مع الجوال */
     [data-testid="stDataFrame"], [data-testid="stTable"] {
         background-color: #161b22 !important;
         border: 1px solid #30363d !important;
         border-radius: 8px;
-        padding: 4px;
-    }
-    
-    /* منع تحول خلايا الجدول إلى الأبيض في متصفحات الجوال */
-    div[data-baseweb="card"], .stDataFrame iframe, [data-testid="stElementContainer"] {
-        background-color: #161b22 !important;
     }
 
     hr {
