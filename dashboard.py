@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- تنسيق CSS متطور لمنع تحول الجدول للأبيض في الجوال وإجبار الثيم الداكن ---
+# --- تنسيق CSS المطور والمجبر للثيم الداكن على الجوال والكمبيوتر ---
 st.markdown("""
     <style>
     /* خلفية التطبيق العامة والهيدر */
@@ -68,15 +68,16 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* إجبار جداول البيانات على الظهور بالثيم الداكن نهائياً في الجوال والكمبيوتر */
-    [data-testid="stDataFrame"] {
+    /* إجبار جداول البيانات و عناصر الـ Grid على الثيم الداكن نهائياً في الجوال والكمبيوتر */
+    [data-testid="stDataFrame"], [data-testid="stTable"] {
         background-color: #161b22 !important;
         border: 1px solid #30363d !important;
         border-radius: 8px;
         padding: 4px;
     }
     
-    div[data-baseweb="card"] {
+    /* منع تحول خلايا الجدول إلى الأبيض في متصفحات الجوال */
+    div[data-baseweb="card"], .stDataFrame iframe, [data-testid="stElementContainer"] {
         background-color: #161b22 !important;
     }
 
