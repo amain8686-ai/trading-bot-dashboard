@@ -87,8 +87,8 @@ st.caption("مركز التحكم والرقابة اللحظية على بوت�
 # --- تعريف بيانات الحسابات ومفاتيح الربط وجداول السجلات السحابية ---
 ACCOUNTS = {
     "الحساب الأول ($1000)": {
-        "API_KEY": "PKL5ENZ2JPZ5M4JVN7JUNWJP52",
-        "SECRET_KEY": "3QWnGzU2vHA9Q8tWSMemktbJwuviZT31WaMgNHQZc7SQ",
+        "API_KEY": "PKTDOMKXLG3WGK4IH446M6SX2C",
+        "SECRET_KEY": "Fc7zocDBym6nLAgKa4d2fFjxVJKTjJwr6kUgz1UEHxx1",
         "BASE_URL": "https://paper-api.alpaca.markets",
         "SHEET_CSV_URL": "https://docs.google.com/spreadsheets/d/10X3odnaYKdOmND2qn5EKsbFktrlOPaZdcNx0XLzxY_M/export?format=csv"
     },
